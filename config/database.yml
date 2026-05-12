@@ -1,0 +1,20 @@
+# All environments read DATABASE_URL from the env (set in docker-compose for
+# development, in the hosting provider for production). Rails merges its
+# values on top of these defaults.
+
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  url: <%= ENV["DATABASE_URL"] %>
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+  # Suffix the db name so it doesn't share the dev database.
+  url: <%= ENV["DATABASE_URL"]&.sub(/_development\z/, "_test") %>
+
+production:
+  <<: *default

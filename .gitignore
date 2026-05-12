@@ -1,0 +1,45 @@
+# Rails defaults — see https://github.com/rails/rails/blob/main/railties/lib/rails/generators/rails/app/templates/gitignore.tt
+
+# Ignore bundler config.
+/.bundle
+
+# Ignore the default SQLite database (we use Postgres but keep this for safety).
+/db/*.sqlite3
+/db/*.sqlite3-*
+
+# Ignore all logfiles and tempfiles.
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+
+# Ignore pidfiles, but keep the directory.
+/tmp/pids/*
+!/tmp/pids/
+!/tmp/pids/.keep
+
+# Ignore storage (uploaded files in development and any SQLite databases).
+/storage/*
+!/storage/.keep
+
+# Ignore master key for decrypting credentials and more.
+/config/master.key
+
+# Local environment files — contain secrets (Resend, JWT, DB).
+/.env
+/.env.*
+!/.env.example
+
+# Ignore OS / editor cruft.
+.DS_Store
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Build artifacts.
+/public/assets/
+
+# RSpec / coverage.
+/coverage/
+.rspec_status

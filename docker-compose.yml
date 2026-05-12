@@ -1,0 +1,72 @@
+# Local-development stack for the Lumelogics assessment API.
+#
+#   docker compose up --build
+#   docker compose run --rm web bin/rails db:create db:migrate
+#   docker compose run --rm web bin/rails console
+#   docker compose run --rm web bundle exec rspec
+#
+# We use `network_mode: host` because this host's Docker bridge networking is
+# blocking inter-container TCP (FORWARD chain). With host networking the
+# services talk via localhost. The trade-off is that ports must avoid host
+# collisions — see HOST_DB_PORT and HOST_WEB_PORT below.
+
+services:
+  db:
+    image: postgres:15-alpine
+    network_mode: host
+    environment:
+      POSTGRES_USER: lumelogics
+      POSTGRES_PASSWORD: lumelogics_dev
+      POSTGRES_DB: lumelogics_development
+      PGPORT: "5434"            # host's :5432 belongs to system Postgres
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 5434 -U lumelogics -d lumelogics_development"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  web:
+    build: .
+    network_mode: host
+    command: bin/rails server -b 0.0.0.0 -p 3001
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    environment:
+      DATABASE_URL: postgres://lumelogics:lumelogics_dev@localhost:5434/lumelogics_development
+      RAILS_ENV: development
+      RAILS_LOG_TO_STDOUT: "1"
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET:-dev_only_change_me_64_chars_minimum_xxxxxxxxxxxxxxxxxxxxxxxxxxx}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:4321}
+      MAIL_FROM: ${MAIL_FROM:-Lumelogics <onboarding@resend.dev>}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:4321}
+    depends_on:
+      db:
+        condition: service_healthy
+    tty: true
+    stdin_open: true
+
+  worker:
+    build: .
+    network_mode: host
+    command: bundle exec good_job start
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    environment:
+      DATABASE_URL: postgres://lumelogics:lumelogics_dev@localhost:5434/lumelogics_development
+      RAILS_ENV: development
+      RAILS_LOG_TO_STDOUT: "1"
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-Lumelogics <onboarding@resend.dev>}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:4321}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pg_data:
+  bundle_cache:
