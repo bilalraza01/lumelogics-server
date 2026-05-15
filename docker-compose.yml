@@ -43,6 +43,20 @@ services:
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:4321}
       MAIL_FROM: ${MAIL_FROM:-Lumelogics <onboarding@resend.dev>}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:4321}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      # Outreel video pipeline + Smartlead push
+      R2_ACCOUNT_ID:        ${R2_ACCOUNT_ID:-}
+      R2_ACCESS_KEY_ID:     ${R2_ACCESS_KEY_ID:-}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
+      R2_BUCKET:            ${R2_BUCKET:-lumelogics-videos}
+      R2_PUBLIC_URL:        ${R2_PUBLIC_URL:-https://videos.lumelogics.com}
+      PLAYER_BASE_URL:      ${PLAYER_BASE_URL:-https://lumelogics.com/v}
+      SMARTLEAD_API_KEY:    ${SMARTLEAD_API_KEY:-}
+      SMARTLEAD_API_BASE:   ${SMARTLEAD_API_BASE:-https://server.smartlead.ai/api/v1}
+      YT_DLP_PATH:          ${YT_DLP_PATH:-/usr/local/bin/yt-dlp}
+      FFMPEG_PATH:          ${FFMPEG_PATH:-/usr/bin/ffmpeg}
+      FFPROBE_PATH:         ${FFPROBE_PATH:-/usr/bin/ffprobe}
     depends_on:
       db:
         condition: service_healthy
@@ -63,6 +77,18 @@ services:
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       MAIL_FROM: ${MAIL_FROM:-Lumelogics <onboarding@resend.dev>}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:4321}
+      # Outreel pipeline (AttachVideoJob runs here)
+      R2_ACCOUNT_ID:        ${R2_ACCOUNT_ID:-}
+      R2_ACCESS_KEY_ID:     ${R2_ACCESS_KEY_ID:-}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
+      R2_BUCKET:            ${R2_BUCKET:-lumelogics-videos}
+      R2_PUBLIC_URL:        ${R2_PUBLIC_URL:-https://videos.lumelogics.com}
+      PLAYER_BASE_URL:      ${PLAYER_BASE_URL:-https://lumelogics.com/v}
+      SMARTLEAD_API_KEY:    ${SMARTLEAD_API_KEY:-}
+      SMARTLEAD_API_BASE:   ${SMARTLEAD_API_BASE:-https://server.smartlead.ai/api/v1}
+      YT_DLP_PATH:          ${YT_DLP_PATH:-/usr/local/bin/yt-dlp}
+      FFMPEG_PATH:          ${FFMPEG_PATH:-/usr/bin/ffmpeg}
+      FFPROBE_PATH:         ${FFPROBE_PATH:-/usr/bin/ffprobe}
     depends_on:
       db:
         condition: service_healthy

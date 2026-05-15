@@ -1,0 +1,20 @@
+# Caddy auto-provisions + renews Let's Encrypt certs for all three hosts.
+# Requires: ports 80/443 open, and the DNS records resolving to this VPS
+# (Cloudflare set to DNS-only / grey cloud so the ACME HTTP-01 challenge
+# reaches Caddy directly).
+
+{
+	email {$ACME_EMAIL:admin@lumelogics.com}
+}
+
+api.lumelogics.com {
+	reverse_proxy web:3001
+}
+
+portal.lumelogics.com {
+	reverse_proxy portal:3000
+}
+
+lumelogics.com, www.lumelogics.com {
+	reverse_proxy marketing:3000
+}

@@ -10,12 +10,13 @@ class AssessmentEmailSender
     if Resend.api_key.to_s.strip.empty?
       log_preview
     else
-      Resend::Emails.send(
+      # resend-rb 1.x expects a single positional hash, not keyword args.
+      Resend::Emails.send({
         from:    ENV.fetch("MAIL_FROM", "Lumelogics <onboarding@resend.dev>"),
         to:      [@assessment.email],
         subject: "Your AI Readiness Score: #{ArchetypeMeta.for(@assessment.archetype)[:display]}",
         html:    html_body,
-      )
+      })
     end
 
     @assessment.update!(email_sent: true, email_sent_at: Time.current)

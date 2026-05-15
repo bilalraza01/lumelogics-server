@@ -8,7 +8,10 @@ class ArchetypeMeta
       display: "The Wishful Thinker",
       verdict: "You like the idea of AI but the foundations aren't there yet. " \
                "You're 6+ months from ready, and that's a fixable problem.",
-      cta:     { label: "Download our 90-Day Playbook", url: "https://lumelogics.com/playbook" },
+      cta:     {
+        label: "Download the AI Readiness Playbook",
+        url:   "https://lumelogics.com/free/ai-readiness-playbook",
+      },
     },
     "aspirational_operator" => {
       display: "The Aspirational Operator",

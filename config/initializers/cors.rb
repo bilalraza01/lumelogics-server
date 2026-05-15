@@ -9,7 +9,7 @@ if allowed.any?
       origins(*allowed)
       resource "/api/*",
         headers: :any,
-        methods: %i[get post options],
+        methods: %i[get post patch put delete options],
         expose: %w[Content-Type]
     end
   end

@@ -1,9 +1,41 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+# Idempotent — run as many times as you want.
+
+# Seed the single admin user from env vars. Skip silently if either var is
+# unset (e.g. on CI), since seeds run on every deploy.
+if ENV["ADMIN_EMAIL"].present? && ENV["ADMIN_PASSWORD"].present?
+  admin = AdminUser.find_or_initialize_by(email: ENV["ADMIN_EMAIL"].downcase.strip)
+  admin.password = ENV["ADMIN_PASSWORD"]
+  if admin.changed?
+    admin.save!
+    puts "✓ Seeded admin user #{admin.email}"
+  end
+end
+
+# Adds the AI Readiness Playbook lead magnet referenced from the assessment's
+# Wishful Thinker archetype CTA.
+
+LeadMagnet.find_or_create_by!(slug: "ai-readiness-playbook") do |m|
+  m.title         = "AI Readiness Playbook"
+  m.description   = "A 90-day playbook for operators who want to get their business AI-ready. " \
+                    "The workflows to document, the data to track, the people to bring along. " \
+                    "Drop your email and we'll send you the link."
+  m.resource_type = "pdf"
+  # Served from the Next.js frontend's public/ folder.
+  m.resource_url  = "/lead-magnets/ai-readiness-playbook.pdf"
+
+  m.email_subject = "Your AI Readiness Playbook"
+  m.email_intro   = "Thanks for grabbing the playbook. Click below and we'll open up the resource " \
+                    "page where you can download the PDF, watch a short walk-through, and book a call " \
+                    "if you'd like a hand applying it."
+
+  m.vsl_headline  = "How to actually use this playbook"
+  m.vsl_body      = "In this short video I walk through the three workflows most SMBs should " \
+                    "automate first and why most early AI projects fail before they ship. If " \
+                    "your business looks like the ones in this playbook, book a free 20-minute " \
+                    "call below and we'll talk through where to start."
+  # Leave vsl_video_url + calendly_url nil — the model falls back to the
+  # default Calendly URL, and the frontend Vsl renders without a video iframe
+  # when video_url is blank.
+end
+
+puts "✓ Seeded #{LeadMagnet.count} lead magnet(s)"

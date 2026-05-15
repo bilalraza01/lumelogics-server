@@ -1,13 +1,13 @@
-# JWT-based auth for admin endpoints. Tokens are issued out-of-band (see
-# lib/tasks/admin_token.rake) and presented as `Authorization: Bearer <jwt>`.
+# JWT-based auth for admin endpoints. Tokens are issued by the sessions
+# controller (POST /api/v1/admin/sessions) or out-of-band via the
+# `bin/rails admin:token` task. Both go through AdminJwt.
 
 module AdminAuthentication
   extend ActiveSupport::Concern
 
-  ALGORITHM = "HS256".freeze
-
   included do
     before_action :authenticate_admin!
+    attr_reader :current_admin_user
   end
 
   private
@@ -21,17 +21,11 @@ module AdminAuthentication
       return
     end
 
-    JWT.decode(token, jwt_secret, true, algorithm: ALGORITHM)
+    payload             = AdminJwt.decode(token)
+    @current_admin_user = AdminUser.find_by(id: payload["sub"]) if payload["sub"].present?
   rescue JWT::ExpiredSignature
     render json: { error: "token_expired" }, status: :unauthorized
   rescue JWT::DecodeError, JWT::VerificationError
     render json: { error: "invalid_token" }, status: :unauthorized
-  end
-
-  def jwt_secret
-    secret = ENV["ADMIN_JWT_SECRET"]
-    raise "ADMIN_JWT_SECRET is not set" if secret.blank?
-
-    secret
   end
 end

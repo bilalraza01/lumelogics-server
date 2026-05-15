@@ -13,6 +13,7 @@ ENV LANG=C.UTF-8 \
 
 # System deps: libpq for the pg gem, build tools for native extensions,
 # git for git-source gems, curl + postgresql-client for entrypoint waits + admin.
+# ffmpeg + yt-dlp are required by the outreel AttachVideoJob (Loom → MP4/GIF).
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
       build-essential \
       libpq-dev \
@@ -21,6 +22,10 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends \
       git \
       curl \
       postgresql-client \
+      ffmpeg \
+      python3 \
+      python3-pip \
+  && pip3 install --break-system-packages --no-cache-dir yt-dlp \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 WORKDIR /app

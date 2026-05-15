@@ -1,0 +1,110 @@
+# Production stack for all of Lumelogics on one VPS.
+#
+# Expected layout (see deploy/README.md):
+#   /srv/lumelogics/
+#     server/   -> lumelogics-server repo
+#     portal/   -> lumelogics-portal repo
+#     web/      -> lumelogics-web repo
+#     .env      -> secrets, chmod 600, NEVER committed
+#     Caddyfile
+#     docker-compose.prod.yml   (this file, copied from server/deploy/)
+#
+# Run from /srv/lumelogics:  docker compose -f docker-compose.prod.yml up -d
+
+name: lumelogics
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-lumelogics}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-lumelogics_production}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lumelogics} -d ${POSTGRES_DB:-lumelogics_production}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  web:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.production
+    restart: unless-stopped
+    # Dockerfile.production's entrypoint runs `db:prepare` because the command
+    # is `./bin/rails server` (it guards on exactly that).
+    command: ./bin/rails server -b 0.0.0.0 -p 3001
+    env_file: [.env]
+    environment:
+      RAILS_ENV: production
+      RAILS_LOG_TO_STDOUT: "1"
+      RAILS_SERVE_STATIC_FILES: "1"
+      DATABASE_URL: postgres://${POSTGRES_USER:-lumelogics}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-lumelogics_production}
+    volumes:
+      - uploads:/rails/public/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.production
+    restart: unless-stopped
+    # Command is NOT `./bin/rails server`, so the entrypoint skips db:prepare
+    # (web owns migrations). GoodJob runs AttachVideoJob → needs ffmpeg/yt-dlp,
+    # which Dockerfile.production now installs.
+    command: bundle exec good_job start
+    env_file: [.env]
+    environment:
+      RAILS_ENV: production
+      RAILS_LOG_TO_STDOUT: "1"
+      DATABASE_URL: postgres://${POSTGRES_USER:-lumelogics}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-lumelogics_production}
+    volumes:
+      - uploads:/rails/public/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      web:
+        condition: service_started
+
+  marketing:
+    build:
+      context: ./web
+      args:
+        NEXT_PUBLIC_ASSESSMENT_API_URL: ${NEXT_PUBLIC_ASSESSMENT_API_URL:-https://api.lumelogics.com}
+    restart: unless-stopped
+
+  portal:
+    build:
+      context: ./portal
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.lumelogics.com}
+        NEXT_PUBLIC_FRONTEND_URL: ${NEXT_PUBLIC_FRONTEND_URL:-https://lumelogics.com}
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      ACME_EMAIL: ${ACME_EMAIL:-admin@lumelogics.com}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - marketing
+      - portal
+
+volumes:
+  pg_data:
+  uploads:
+  caddy_data:
+  caddy_config:

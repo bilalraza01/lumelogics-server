@@ -25,10 +25,16 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
-# Local environment files — contain secrets (Resend, JWT, DB).
-/.env
-/.env.*
-!/.env.example
+# Local environment files — contain secrets (Resend, JWT, DB). Unanchored so
+# a stray secrets file in ANY dir (e.g. deploy/.env) is also ignored; only
+# the committed templates are re-included.
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# Claude Code local working state — never commit.
+.claude/
 
 # Ignore OS / editor cruft.
 .DS_Store
@@ -39,6 +45,10 @@
 
 # Build artifacts.
 /public/assets/
+
+# Lead-magnet uploads (CarrierWave local storage). Persisted via the
+# docker-compose bind mount in dev; a real volume in production.
+/public/uploads/
 
 # RSpec / coverage.
 /coverage/

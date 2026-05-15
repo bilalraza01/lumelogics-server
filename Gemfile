@@ -14,8 +14,19 @@ gem "rack-cors"
 # JWT for admin endpoints
 gem "jwt"
 
+# Admin password hashing (used by has_secure_password on AdminUser)
+gem "bcrypt", "~> 3.1.7"
+
 # Transactional email
 gem "resend"
+
+# File uploads for lead-magnet PDFs / files (local disk storage).
+gem "carrierwave", "~> 3.0"
+
+# Outreel video pipeline: Cloudflare R2 (S3-compatible) for MP4/GIF storage,
+# Faraday for the Smartlead REST API.
+gem "aws-sdk-s3", require: false
+gem "faraday"
 
 # Background jobs (PostgreSQL-backed — no Redis needed)
 gem "good_job", "~> 4.0"
