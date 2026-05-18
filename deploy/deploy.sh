@@ -10,11 +10,12 @@ cd "$(dirname "$0")"
 
 COMPOSE="docker compose -f docker-compose.prod.yml"
 
-# Load .env so $POSTGRES_* are available for the backup step.
-set -a
-# shellcheck disable=SC1091
-[ -f .env ] && . ./.env
-set +a
+# Pull just the Postgres identifiers for the backup step. We deliberately do
+# NOT `source` .env: docker compose parses it natively, but values like
+# MAIL_FROM="Name <addr>" are not valid shell and would abort this script.
+envval() { [ -f .env ] && grep -E "^$1=" .env | tail -1 | cut -d= -f2- | tr -d "\"'\r"; }
+POSTGRES_USER="$(envval POSTGRES_USER)"
+POSTGRES_DB="$(envval POSTGRES_DB)"
 
 echo "==> Pulling repos"
 for d in server portal web; do
