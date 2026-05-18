@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_14_130001) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_18_100001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pgcrypto"
@@ -53,6 +53,20 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_14_130001) do
     t.index ["created_at"], name: "index_assessments_on_created_at"
     t.index ["email"], name: "index_assessments_on_email"
     t.index ["result_token"], name: "index_assessments_on_result_token", unique: true
+  end
+
+  create_table "audits", force: :cascade do |t|
+    t.string "slug", null: false
+    t.string "client_name", null: false
+    t.string "industry"
+    t.string "status", default: "in_progress", null: false
+    t.date "started_on"
+    t.date "completed_on"
+    t.jsonb "content", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_audits_on_slug", unique: true
+    t.index ["status"], name: "index_audits_on_status"
   end
 
   create_table "campaign_pushes", force: :cascade do |t|

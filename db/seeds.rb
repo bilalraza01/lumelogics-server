@@ -39,3 +39,21 @@ LeadMagnet.find_or_create_by!(slug: "ai-readiness-playbook") do |m|
 end
 
 puts "✓ Seeded #{LeadMagnet.count} lead magnet(s)"
+
+# Client audit deliverable for Scaleforte (Amazon agency: PPC management +
+# catalogue optimization). CREATE-ONLY: the fixture is just the initial
+# template. Once the audit exists it is managed through the portal, so
+# redeploys / re-seeds must never overwrite portal edits.
+require_relative "seeds/audits/scaleforte"
+
+created = false
+Audit.find_or_create_by!(slug: "scaleforte") do |a|
+  a.client_name  = "Scaleforte"
+  a.industry     = "Amazon Agency (PPC & Catalogue Optimization)"
+  a.status       = "delivered"
+  a.started_on   = Date.new(2026, 4, 7)
+  a.completed_on = Date.new(2026, 5, 12)
+  a.content      = Seeds::Audits::Scaleforte.content
+  created = true
+end
+puts "✓ Seeded audit /audit/scaleforte" if created

@@ -15,6 +15,9 @@ Rails.application.routes.draw do
       # Public outreach video viewer — lumelogics.com/v/<slug> hits this.
       get "videos/by-slug/:slug", to: "videos#show_by_slug", as: :video_by_slug
 
+      # Public client audit deliverable — lumelogics.com/audit/<slug> hits this.
+      get "audits/by-slug/:slug", to: "audits#by_slug", as: :audit_by_slug
+
       namespace :admin do
         get   "dashboard", to: "dashboard#index"
         patch "password",  to: "passwords#update"
@@ -23,6 +26,7 @@ Rails.application.routes.draw do
         resources :leads,        only: %i[index show], param: :email,
                                  constraints: { email: %r{[^/]+} }
         resources :assessments,  only: %i[index show]
+        resources :audits,        except: %i[new edit]
 
         namespace :outreel do
           resources :prospects do
