@@ -57,3 +57,19 @@ Audit.find_or_create_by!(slug: "scaleforte") do |a|
   created = true
 end
 puts "✓ Seeded audit /audit/scaleforte" if created
+
+# Public anonymized SAMPLE audit linked from the marketing home page
+# (/audit/demo). CREATE-ONLY, same as above.
+require_relative "seeds/audits/demo"
+
+demo_created = false
+Audit.find_or_create_by!(slug: "demo") do |a|
+  a.client_name  = "Northpeak Commerce"
+  a.industry     = "Amazon Agency (PPC & Catalogue Optimization)"
+  a.status       = "delivered"
+  a.started_on   = Date.new(2026, 4, 7)
+  a.completed_on = Date.new(2026, 5, 12)
+  a.content      = Seeds::Audits::Demo.content
+  demo_created = true
+end
+puts "✓ Seeded audit /audit/demo" if demo_created
