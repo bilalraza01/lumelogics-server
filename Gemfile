@@ -21,7 +21,7 @@ gem "bcrypt", "~> 3.1.7"
 gem "resend"
 
 # File uploads for lead-magnet PDFs / files (local disk storage).
-gem "carrierwave", "~> 3.0"
+gem "carrierwave", "~> 3.1"
 
 # Outreel video pipeline: Cloudflare R2 (S3-compatible) for MP4/GIF storage,
 # Faraday for the Smartlead REST API.
