@@ -11,6 +11,13 @@ if allowed.any?
         headers: :any,
         methods: %i[get post patch put delete options],
         expose: %w[Content-Type]
+
+      # New /v1/* prefix (see routes.rb). Fintagic contact form + any
+      # future endpoints migrated off the /api/v1/... path get CORS from here.
+      resource "/v1/*",
+        headers: :any,
+        methods: %i[get post patch put delete options],
+        expose: %w[Content-Type]
     end
   end
 end

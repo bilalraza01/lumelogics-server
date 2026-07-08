@@ -2,6 +2,15 @@ Rails.application.routes.draw do
   # Rails 7.2 built-in health check (used by hosting providers).
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # New /v1/* prefix (subdomain already carries "api", so no /api/ needed).
+  # First endpoint on this pattern; future endpoints can migrate here as
+  # they're touched.
+  namespace :v1 do
+    namespace :fintagic do
+      post "contact", to: "contact#create"
+    end
+  end
+
   namespace :api do
     namespace :v1 do
       resources :assessments, only: %i[create show], param: :token
