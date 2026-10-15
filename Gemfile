@@ -29,7 +29,7 @@ gem "aws-sdk-s3", require: false
 gem "faraday"
 
 # Background jobs (PostgreSQL-backed — no Redis needed)
-gem "good_job", "~> 4.0"
+gem "good_job", "~> 4.19"
 
 # Standard niceties
 gem "tzinfo-data", platforms: %i[windows jruby]
