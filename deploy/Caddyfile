@@ -15,6 +15,10 @@ portal.lumelogics.com {
 	reverse_proxy portal:3000
 }
 
+n8n.lumelogics.com {
+	reverse_proxy n8n:5678
+}
+
 lumelogics.com, www.lumelogics.com {
 	reverse_proxy marketing:3000
 }
